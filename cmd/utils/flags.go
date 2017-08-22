@@ -550,7 +550,6 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 		urls = params.TestnetBootnodes
 	case ctx.GlobalBool(RinkebyFlag.Name):
 		urls = params.RinkebyBootnodes
-	}
 	case ctx.GlobalBool(DanpheFlag.Name):
 		urls = params.DanpheBootnodes
 	}
@@ -824,7 +823,6 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 		cfg.DataDir = filepath.Join(node.DefaultDataDir(), "testnet")
 	case ctx.GlobalBool(RinkebyFlag.Name):
 		cfg.DataDir = filepath.Join(node.DefaultDataDir(), "rinkeby")
-	}
 	case ctx.GlobalBool(DanpheFlag.Name):
 		cfg.DataDir = filepath.Join(node.DefaultDataDir(), "monal")
 	}
