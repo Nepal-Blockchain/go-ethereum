@@ -50,6 +50,17 @@ var RinkebyBootnodes = []string{
 var RinkebyV5Bootnodes = []string{
 	"enode://a24ac7c5484ef4ed0c5eb2d36620ba4e4aa13b8c84684e1b4aab0cebea2ae45cb4d375b77eab56516d34bfbd3c1a833fc51296ff084b770b94fb9028c4d25ccf@52.169.42.101:30303?discport=30304", // IE
 }
+// DanpheBootnodes are the enode URLs of the P2P bootstrap nodes running on the
+// Danphe BAAS network.
+var DanpheBootnodes = []string{
+	"enode://8f9623a865ac4b0c31ae2148678d7efe45857a1cc2ba073676508cb37662d94b51dfc6151e50a576900a0e64e8a044d4277f776d9f6fc723612c1b225cf9958f@139.59.220.32:30303", // SGP
+}
+
+// DanpheV5Bootnodes are the enode URLs of the P2P bootstrap nodes running on the
+// Danphe BAAS network for the experimental RLPx v5 topic-discovery network.
+var DanpheV5Bootnodes = []string{
+	"enode://8f9623a865ac4b0c31ae2148678d7efe45857a1cc2ba073676508cb37662d94b51dfc6151e50a576900a0e64e8a044d4277f776d9f6fc723612c1b225cf9958f@139.59.220.32:30303?discport=30304", // SGP
+}
 
 // DiscoveryV5Bootnodes are the enode URLs of the P2P bootstrap nodes for the
 // experimental RLPx v5 topic-discovery network.
