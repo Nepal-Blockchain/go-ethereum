@@ -51,6 +51,22 @@ var RinkebyV5Bootnodes = []string{
 	"enode://343149e4feefa15d882d9fe4ac7d88f885bd05ebb735e547f12e12080a9fa07c8014ca6fd7f373123488102fe5e34111f8509cf0b7de3f5b44339c9f25e87cb8@52.3.158.184:30303?discport=30304",  // INFURA
 }
 
+// DanpheBootnodes are the enode URLs of the P2P bootstrap nodes running on the
+// Danphe BaaS network.
+var DanpheBootnodes = []string{
+	"enode://8f9623a865ac4b0c31ae2148678d7efe45857a1cc2ba073676508cb37662d94b51dfc6151e50a576900a0e64e8a044d4277f776d9f6fc723612c1b225cf9958f@139.59.220.32:30303", // SGP
+	"enode://36162e57dbef79ecdc98771f617d5749f0fdd9e536f0b70e027a992d15f1d4b8fceb615a24ccda280e81fc5c5c0b32a3ca6770b7e2b6ba76f06bbc7ff8e481b1@139.59.49.133:30303", // BGLR
+}
+
+// DanpheV5Bootnodes are the enode URLs of the P2P bootstrap nodes running on the
+// Danphe BaaS network for the experimental RLPx v5 topic-discovery network.
+var DanpheV5Bootnodes = []string{
+	"enode://8f9623a865ac4b0c31ae2148678d7efe45857a1cc2ba073676508cb37662d94b51dfc6151e50a576900a0e64e8a044d4277f776d9f6fc723612c1b225cf9958f@139.59.220.32:30303?discport=30304", // SGP
+	"enode://36162e57dbef79ecdc98771f617d5749f0fdd9e536f0b70e027a992d15f1d4b8fceb615a24ccda280e81fc5c5c0b32a3ca6770b7e2b6ba76f06bbc7ff8e481b1@139.59.49.133:30303?discport=30304", // BGLR
+
+}
+
+
 // DiscoveryV5Bootnodes are the enode URLs of the P2P bootstrap nodes for the
 // experimental RLPx v5 topic-discovery network.
 var DiscoveryV5Bootnodes = []string{

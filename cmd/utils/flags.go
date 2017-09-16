@@ -18,69 +18,69 @@
 package utils
 
 import (
-	"crypto/ecdsa"
-	"fmt"
-	"io/ioutil"
-	"math/big"
-	"os"
-	"path/filepath"
-	"runtime"
-	"strconv"
-	"strings"
+"crypto/ecdsa"
+"fmt"
+"io/ioutil"
+"math/big"
+"os"
+"path/filepath"
+"runtime"
+"strconv"
+"strings"
 
-	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/eth"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	"github.com/ethereum/go-ethereum/eth/gasprice"
-	"github.com/ethereum/go-ethereum/ethdb"
-	"github.com/ethereum/go-ethereum/ethstats"
-	"github.com/ethereum/go-ethereum/les"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/metrics"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/discover"
-	"github.com/ethereum/go-ethereum/p2p/discv5"
-	"github.com/ethereum/go-ethereum/p2p/nat"
-	"github.com/ethereum/go-ethereum/p2p/netutil"
-	"github.com/ethereum/go-ethereum/params"
-	whisper "github.com/ethereum/go-ethereum/whisper/whisperv5"
-	"gopkg.in/urfave/cli.v1"
+"github.com/ethereum/go-ethereum/accounts"
+"github.com/ethereum/go-ethereum/accounts/keystore"
+"github.com/ethereum/go-ethereum/common"
+"github.com/ethereum/go-ethereum/consensus/ethash"
+"github.com/ethereum/go-ethereum/core"
+"github.com/ethereum/go-ethereum/core/state"
+"github.com/ethereum/go-ethereum/core/vm"
+"github.com/ethereum/go-ethereum/crypto"
+"github.com/ethereum/go-ethereum/eth"
+"github.com/ethereum/go-ethereum/eth/downloader"
+"github.com/ethereum/go-ethereum/eth/gasprice"
+"github.com/ethereum/go-ethereum/ethdb"
+"github.com/ethereum/go-ethereum/ethstats"
+"github.com/ethereum/go-ethereum/les"
+"github.com/ethereum/go-ethereum/log"
+"github.com/ethereum/go-ethereum/metrics"
+"github.com/ethereum/go-ethereum/node"
+"github.com/ethereum/go-ethereum/p2p"
+"github.com/ethereum/go-ethereum/p2p/discover"
+"github.com/ethereum/go-ethereum/p2p/discv5"
+"github.com/ethereum/go-ethereum/p2p/nat"
+"github.com/ethereum/go-ethereum/p2p/netutil"
+"github.com/ethereum/go-ethereum/params"
+whisper "github.com/ethereum/go-ethereum/whisper/whisperv5"
+"gopkg.in/urfave/cli.v1"
 )
 
 var (
 	CommandHelpTemplate = `{{.cmd.Name}}{{if .cmd.Subcommands}} command{{end}}{{if .cmd.Flags}} [command options]{{end}} [arguments...]
-{{if .cmd.Description}}{{.cmd.Description}}
-{{end}}{{if .cmd.Subcommands}}
-SUBCOMMANDS:
+	{{if .cmd.Description}}{{.cmd.Description}}
+	{{end}}{{if .cmd.Subcommands}}
+	SUBCOMMANDS:
 	{{range .cmd.Subcommands}}{{.cmd.Name}}{{with .cmd.ShortName}}, {{.cmd}}{{end}}{{ "\t" }}{{.cmd.Usage}}
 	{{end}}{{end}}{{if .categorizedFlags}}
-{{range $idx, $categorized := .categorizedFlags}}{{$categorized.Name}} OPTIONS:
-{{range $categorized.Flags}}{{"\t"}}{{.}}
-{{end}}
-{{end}}{{end}}`
+	{{range $idx, $categorized := .categorizedFlags}}{{$categorized.Name}} OPTIONS:
+	{{range $categorized.Flags}}{{"\t"}}{{.}}
+	{{end}}
+	{{end}}{{end}}`
 )
 
 func init() {
 	cli.AppHelpTemplate = `{{.Name}} {{if .Flags}}[global options] {{end}}command{{if .Flags}} [command options]{{end}} [arguments...]
 
-VERSION:
-   {{.Version}}
+	VERSION:
+	{{.Version}}
 
-COMMANDS:
-   {{range .Commands}}{{.Name}}{{with .ShortName}}, {{.}}{{end}}{{ "\t" }}{{.Usage}}
-   {{end}}{{if .Flags}}
-GLOBAL OPTIONS:
-   {{range .Flags}}{{.}}
-   {{end}}{{end}}
-`
+	COMMANDS:
+	{{range .Commands}}{{.Name}}{{with .ShortName}}, {{.}}{{end}}{{ "\t" }}{{.Usage}}
+	{{end}}{{if .Flags}}
+	GLOBAL OPTIONS:
+	{{range .Flags}}{{.}}
+	{{end}}{{end}}
+	`
 
 	cli.CommandHelpTemplate = CommandHelpTemplate
 }
@@ -124,7 +124,7 @@ var (
 	}
 	NetworkIdFlag = cli.Uint64Flag{
 		Name:  "networkid",
-		Usage: "Network identifier (integer, 1=Frontier, 2=Morden (disused), 3=Ropsten, 4=Rinkeby)",
+		Usage: "Network identifier (integer, 1=Frontier, 2=Morden (disused), 3=Ropsten, 4=Rinkeby, 977=Danphe)",
 		Value: eth.DefaultConfig.NetworkId,
 	}
 	TestnetFlag = cli.BoolFlag{
@@ -134,6 +134,10 @@ var (
 	RinkebyFlag = cli.BoolFlag{
 		Name:  "rinkeby",
 		Usage: "Rinkeby network: pre-configured proof-of-authority test network",
+	}
+	DanpheFlag = cli.BoolFlag{
+		Name:  "danphe",
+		Usage: "Danphe POA Blockchain as a Service",
 	}
 	DevModeFlag = cli.BoolFlag{
 		Name:  "dev",
@@ -498,6 +502,9 @@ func MakeDataDir(ctx *cli.Context) string {
 		if ctx.GlobalBool(RinkebyFlag.Name) {
 			return filepath.Join(path, "rinkeby")
 		}
+		if ctx.GlobalBool(DanpheFlag.Name) {
+			return filepath.Join(path, "monal")
+		}
 		return path
 	}
 	Fatalf("Cannot determine default data directory, please set manually (--datadir)")
@@ -513,7 +520,7 @@ func setNodeKey(ctx *cli.Context, cfg *p2p.Config) {
 		file = ctx.GlobalString(NodeKeyFileFlag.Name)
 		key  *ecdsa.PrivateKey
 		err  error
-	)
+		)
 	switch {
 	case file != "" && hex != "":
 		Fatalf("Options %q and %q are mutually exclusive", NodeKeyFileFlag.Name, NodeKeyHexFlag.Name)
@@ -552,6 +559,8 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 		urls = params.TestnetBootnodes
 	case ctx.GlobalBool(RinkebyFlag.Name):
 		urls = params.RinkebyBootnodes
+	case ctx.GlobalBool(DanpheFlag.Name):
+		urls = params.DanpheBootnodes
 	}
 
 	cfg.BootstrapNodes = make([]*discover.Node, 0, len(urls))
@@ -578,6 +587,8 @@ func setBootstrapNodesV5(ctx *cli.Context, cfg *p2p.Config) {
 		}
 	case ctx.GlobalBool(RinkebyFlag.Name):
 		urls = params.RinkebyV5Bootnodes
+	case ctx.GlobalBool(DanpheFlag.Name):
+		urls = params.DanpheV5Bootnodes
 	case cfg.BootstrapNodesV5 != nil:
 		return // already set, don't apply defaults.
 	}
@@ -821,6 +832,8 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 		cfg.DataDir = filepath.Join(node.DefaultDataDir(), "testnet")
 	case ctx.GlobalBool(RinkebyFlag.Name):
 		cfg.DataDir = filepath.Join(node.DefaultDataDir(), "rinkeby")
+	case ctx.GlobalBool(DanpheFlag.Name):
+		cfg.DataDir = filepath.Join(node.DefaultDataDir(), "monal")
 	}
 
 	if ctx.GlobalIsSet(KeyStoreDirFlag.Name) {
@@ -922,7 +935,7 @@ func SetShhConfig(ctx *cli.Context, stack *node.Node, cfg *whisper.Config) {
 // SetEthConfig applies eth-related command line flags to the config.
 func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 	// Avoid conflicting network flags
-	checkExclusive(ctx, DevModeFlag, TestnetFlag, RinkebyFlag)
+	checkExclusive(ctx, DevModeFlag, TestnetFlag, RinkebyFlag, DanpheFlag)
 	checkExclusive(ctx, FastSyncFlag, LightModeFlag, SyncModeFlag)
 
 	ks := stack.AccountManager().Backends(keystore.KeyStoreType)[0].(*keystore.KeyStore)
@@ -983,6 +996,11 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 			cfg.NetworkId = 4
 		}
 		cfg.Genesis = core.DefaultRinkebyGenesisBlock()
+	case ctx.GlobalBool(DanpheFlag.Name):
+		if !ctx.GlobalIsSet(NetworkIdFlag.Name) {
+			cfg.NetworkId = 977
+		}
+		cfg.Genesis = core.DefaultDanpheGenesisBlock()
 	case ctx.GlobalBool(DevModeFlag.Name):
 		cfg.Genesis = core.DevGenesisBlock()
 		if !ctx.GlobalIsSet(GasPriceFlag.Name) {
@@ -1003,7 +1021,7 @@ func RegisterEthService(stack *node.Node, cfg *eth.Config) {
 	if cfg.SyncMode == downloader.LightSync {
 		err = stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
 			return les.New(ctx, cfg)
-		})
+			})
 	} else {
 		err = stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
 			fullNode, err := eth.New(ctx, cfg)
@@ -1012,7 +1030,7 @@ func RegisterEthService(stack *node.Node, cfg *eth.Config) {
 				fullNode.AddLesServer(ls)
 			}
 			return fullNode, err
-		})
+			})
 	}
 	if err != nil {
 		Fatalf("Failed to register the Ethereum service: %v", err)
@@ -1056,7 +1074,7 @@ func MakeChainDatabase(ctx *cli.Context, stack *node.Node) ethdb.Database {
 	var (
 		cache   = ctx.GlobalInt(CacheFlag.Name)
 		handles = makeDatabaseHandles()
-	)
+		)
 	name := "chaindata"
 	if ctx.GlobalBool(LightModeFlag.Name) {
 		name = "lightchaindata"
@@ -1075,6 +1093,8 @@ func MakeGenesis(ctx *cli.Context) *core.Genesis {
 		genesis = core.DefaultTestnetGenesisBlock()
 	case ctx.GlobalBool(RinkebyFlag.Name):
 		genesis = core.DefaultRinkebyGenesisBlock()
+	case ctx.GlobalBool(DanpheFlag.Name):
+		genesis = core.DefaultDanpheGenesisBlock()
 	case ctx.GlobalBool(DevModeFlag.Name):
 		genesis = core.DevGenesisBlock()
 	}
@@ -1091,7 +1111,7 @@ func MakeChain(ctx *cli.Context, stack *node.Node) (chain *core.BlockChain, chai
 		engine = ethash.New(
 			stack.ResolvePath(eth.DefaultConfig.EthashCacheDir), eth.DefaultConfig.EthashCachesInMem, eth.DefaultConfig.EthashCachesOnDisk,
 			stack.ResolvePath(eth.DefaultConfig.EthashDatasetDir), eth.DefaultConfig.EthashDatasetsInMem, eth.DefaultConfig.EthashDatasetsOnDisk,
-		)
+			)
 	}
 	config, _, err := core.SetupGenesisBlock(chainDb, MakeGenesis(ctx))
 	if err != nil {
