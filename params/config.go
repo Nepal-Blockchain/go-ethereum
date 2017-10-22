@@ -77,6 +77,23 @@ var (
 		},
 	}
 
+	// DanpheChainConfig contains the chain parameters to run a node on the Danphe BaaS network.
+	DanpheChainConfig = &ChainConfig{
+		ChainId:         big.NewInt(977),
+		HomesteadBlock:  big.NewInt(1),
+		DAOForkBlock:    nil,
+		DAOForkSupport:  true,
+		EIP150Block:     big.NewInt(2),
+		EIP150Hash:      common.HexToHash("0x5734f3e699e394bc4cd329b8b2a34a8bb98a303332499cfab85d9f41ea162274"),
+		EIP155Block:     big.NewInt(3),
+		EIP158Block:     big.NewInt(3),
+		ByzantiumBlock: big.NewInt(273724),
+		Clique: &CliqueConfig{
+			Period: 15,
+			Epoch:  30000,
+		},
+	}
+
 	// AllProtocolChanges contains every protocol change (EIPs)
 	// introduced and accepted by the Ethereum core developers.
 	//
