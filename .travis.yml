@@ -1,6 +1,9 @@
 language: go
 go_import_path: github.com/ethereum/go-ethereum
 sudo: false
+branches:
+  only:
+  - danphe1.7.2
 matrix:
   include:
     - os: linux
