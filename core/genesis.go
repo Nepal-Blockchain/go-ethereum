@@ -342,6 +342,18 @@ func DefaultRinkebyGenesisBlock() *Genesis {
 	}
 }
 
+// DefaultDanpheGenesisBlock returns the Danphe BaaS dev network genesis block.
+func DefaultDanpheGenesisBlock() *Genesis {
+	return &Genesis{
+		Config:     params.DanpheChainConfig,
+		Timestamp:  1503423733,
+		ExtraData:  hexutil.MustDecode("0x44616e70686520504f4120426c6f636b636861696e20417320412053657276696b4f420234f9d68e3c829fa2594a77d08542ce7dbd6b418ed0eb68ebb5ba76fca74df9fb03942bb8db8d2b9660cb0744458da7f6f62a21ffcdcb02be0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"),
+		GasLimit:   4700000,
+		Difficulty: big.NewInt(1),
+		Alloc:      decodePrealloc(danpheAllocData),
+	}
+}
+
 // DeveloperGenesisBlock returns the 'geth --dev' genesis block. Note, this must
 // be seeded with the
 func DeveloperGenesisBlock(period uint64, faucet common.Address) *Genesis {

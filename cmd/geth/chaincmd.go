@@ -105,6 +105,7 @@ if already existing.`,
 			utils.FakePoWFlag,
 			utils.TestnetFlag,
 			utils.RinkebyFlag,
+			utils.DanpheFlag,
 		},
 		Category: "BLOCKCHAIN COMMANDS",
 		Description: `
